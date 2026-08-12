@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- LOGIN SECTION -->
+    <main id="login-section" class="form-section admin-login-card">
+        <h2>Admin Login</h2>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <a href="home.html" class="back-home-btn">← Back to Store Home</a>
+    </main>
+
+
+    <!-- ADMIN DASHBOARD SECTION -->
+    <main id="admin-dashboard" class="hidden">
+        <header class="admin-header">
+            <h2>Admin Dashboard</h2>
+            <div>
+                <a href="home.html" class="store-link-btn" target="_blank">View Live Store ↗</a>
+                <button onclick="handleLogout()" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <!-- Marquee Banner Editor Section -->
+        <section class="form-section" style="margin-bottom: 20px;">
+            <h3>Homepage Marquee Welcome Message</h3>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="text" id="marquee-text-input" placeholder="Type welcome announcement..." style="flex: 1;">
+                <button type="button" onclick="saveMarqueeMessage()" style="width: auto; background: #28a745;">Save
+                    Message</button>
+            </div>
+        </section>
+
+        <!-- Product Form -->
+        <section class="form-section">
+            <h3>Add New Product</h3>
+            <form id="add-product-form" onsubmit="handleAddProduct(event)">
+                <input type="text" id="prod-name" placeholder="Product Title" required>
+
+                <select id="prod-category" required>
+                    <option value="">Select Category</option>
+                    <option value="Phone">Phone</option>
+                    <option value="Smartwatch">Smartwatch</option>
+                    <option value="AirPods">AirPods</option>
+                    <option value="Sunglasses">Sunglasses</option>
+                    <option value="Computer Accessories">Computer Accessories</option>
+                </select>
+
+                <input type="number" id="prod-price" placeholder="Current Price (₦)" required>
+                <input type="number" id="prod-orig-price" placeholder="Original Price (₦)">
+                <input type="text" id="prod-color" placeholder="Color (Optional)">
+
+                <!-- Dropdown Source Selector -->
+                <div class="image-input-group">
+                    <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Select Image
+                        Type / Method:</label>
+
+                    <select id="image-source-dropdown" onchange="handleImageSourceChange(this.value)">
+                        <option value="url">Paste Image URL</option>
+                        <option value="file">Upload File from Computer</option>
+                    </select>
+
+                    <!-- Input Container: URL -->
+                    <div id="url-input-container" style="margin-top: 10px;">
+                        <input type="url" id="prod-image-url" placeholder="Paste Image URL (https://...)">
+                    </div>
+
+                    <!-- Input Container: File Upload -->
+                    <div id="file-input-container" class="hidden" style="margin-top: 10px;">
+                        <input type="file" id="prod-image-file" accept="image/*">
+                        <small style="color: #666; font-size: 11px; margin-top: 4px; display: block;">
+                            *Upload images under 1MB to avoid storage limit issues.
+                        </small>
+                    </div>
+                </div>
+
+                <textarea id="prod-desc" placeholder="Product Description"></textarea>
+                <button type="submit">Add Product</button>
+            </form>
+        </section>
+
+        <!-- Inventory Table -->
+        <!-- Inventory Catalog Table -->
+        <section class="table-container" style="margin-top: 20px;">
+            <h3>Inventory Catalog</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-product-table"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="admin.js"></script>
+</body>
+
+</html>

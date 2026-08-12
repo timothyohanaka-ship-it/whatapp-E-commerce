@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Storefront</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="main-header">
+    <div class="logo-container">
+      <img src="logo.png" alt="Store Logo" class="site-logo">
+    </div>
+
+    <!-- Live Marquee Message -->
+    <div class="marquee-container">
+      <marquee id="store-marquee" behavior="scroll" direction="left" scrollamount="5">
+        You are welcome
+      </marquee>
+    </div>
+
+    <div class="header-actions">
+      <!-- Dynamic User Greeting Info -->
+      <div id="user-info" class="user-greeting">
+        <span id="user-display-name"></span>
+        <button id="logout-btn" class="logout-btn" style="display: none;">Logout</button>
+      </div>
+
+      <button class="cart-icon-btn" onclick="toggleCartView()">
+        🛒 <span class="cart-badge" id="cart-count">0</span>
+      </button>
+      <a href="admin.html" class="admin-link">Admin Panel</a>
+      <a href="index.html" id="signin-link" class="admin-links">Signin</a>
+    </div>
+  </header>
+
+  <main id="store-view">
+    <div class="category-tabs">
+      <button class="category-btn active" onmouseenter="filterCategory('All')" onclick="filterCategory('All')">All</button>
+      <button class="category-btn" onmouseenter="filterCategory('Phone')" onclick="filterCategory('Phone')">Phones</button>
+      <button class="category-btn" onmouseenter="filterCategory('Smartwatch')" onclick="filterCategory('Smartwatch')">Smartwatch</button>
+      <button class="category-btn" onmouseenter="filterCategory('AirPods')" onclick="filterCategory('AirPods')">AirPods</button>
+      <button class="category-btn" onmouseenter="filterCategory('Sunglasses')" onclick="filterCategory('Sunglasses')">Sunglasses</button>
+      <button class="category-btn" onmouseenter="filterCategory('Computer Accessories')" onclick="filterCategory('Computer Accessories')">Computer Accessories</button>
+    </div>
+
+    <input type="text" id="search" class="search-bar" placeholder="Search items..." onkeyup="renderProducts()">
+
+    <div class="grid" id="product-list"></div>
+  </main>
+
+  <section id="cart-view" class="cart-section hidden">
+    <button onclick="toggleCartView()" style="padding: 6px 12px; margin-bottom: 10px;">← Back to Store</button>
+    <h2>Your Cart</h2>
+    <div id="cart-items"></div>
+    <h3 id="cart-total" style="margin-top: 15px;">Total: ₦0</h3>
+    <button class="checkout-btn" onclick="checkoutWhatsApp()">Checkout on WhatsApp</button>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-info">
+        <h3>Our Store</h3>
+        <p>Quality products delivered fast to your doorstep.</p>
+      </div>
+
+      <div class="footer-socials">
+        <h4>Follow Us</h4>
+        <div class="social-links">
+          <a href="https://wa.me/2348000000000" target="_blank" class="social-icon whatsapp">💬 WhatsApp</a>
+          <a href="https://instagram.com/yourhandle" target="_blank" class="social-icon instagram">📸 Instagram</a>
+          <a href="https://facebook.com/yourhandle" target="_blank" class="social-icon facebook">👍 Facebook</a>
+          <a href="https://tiktok.com/@yourhandle" target="_blank" class="social-icon tiktok">🎵 TikTok</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2026 Store Name. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Single app script loaded as a module to support Firebase imports -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
