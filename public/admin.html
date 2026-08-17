@@ -34,6 +34,25 @@
             </div>
         </header>
 
+        <!-- Store Branding Section -->
+        <section class="form-section" style="margin-bottom: 20px;">
+            <h3>Store Branding</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <input type="text" id="store-name-input" placeholder="Business name" value="Store Name">
+                <input type="text" id="store-tagline-input" placeholder="Store tagline" value="Quality products delivered fast to your doorstep.">
+            </div>
+            <button type="button" onclick="saveStoreSettings()" style="width: auto; margin-top: 12px; background: #28a745;">Save Branding</button>
+        </section>
+
+        <section class="form-section" style="margin-bottom: 20px;">
+            <h3>Login Page Background</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <input type="url" id="login-bg-url" placeholder="Paste login background image URL">
+                <input type="file" id="login-bg-file" accept="image/*" style="padding: 8px;">
+            </div>
+            <button type="button" onclick="saveStoreSettings()" style="width: auto; margin-top: 12px; background: #0d6efd;">Save Login Background</button>
+        </section>
+
         <!-- Marquee Banner Editor Section -->
         <section class="form-section" style="margin-bottom: 20px;">
             <h3>Homepage Marquee Welcome Message</h3>
@@ -57,6 +76,8 @@
                     <option value="AirPods">AirPods</option>
                     <option value="Sunglasses">Sunglasses</option>
                     <option value="Computer Accessories">Computer Accessories</option>
+                    <option value="Laptops">Laptops</option>
+                    <option value="Audio">Audio</option>
                 </select>
 
                 <input type="number" id="prod-price" placeholder="Current Price (₦)" required>

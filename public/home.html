@@ -10,7 +10,8 @@
 
   <header class="main-header">
     <div class="logo-container">
-      <img src="logo.png" alt="Store Logo" class="site-logo">
+      <img src="./picss/images.jpg" alt="Store Logo" class="site-logo">
+      <span class="store-brand-name" data-store-name>FGP</span>
     </div>
 
     <!-- Live Marquee Message -->
@@ -35,14 +36,43 @@
     </div>
   </header>
 
+  <section class="promo-strip">
+    <div class="promo-copy">
+      <span class="promo-badge">Hot deals</span>
+      <h1>Smart tech for everyday life.</h1>
+      <p>From phones and smartwatches to audio gear and everyday accessories, shop your favorites and order directly on WhatsApp.</p>
+      <div class="promo-actions">
+        <a href="#product-list" class="promo-btn primary">Shop now</a>
+        <button class="promo-btn secondary" onclick="checkoutWhatsApp()">Chat on WhatsApp</button>
+      </div>
+    </div>
+
+    <div class="promo-stats">
+      <div class="stat-box">
+        <strong>Same-day</strong>
+        <span>Dispatch</span>
+      </div>
+      <div class="stat-box">
+        <strong>4.9/5</strong>
+        <span>Customer rating</span>
+      </div>
+      <div class="stat-box">
+        <strong>100%</strong>
+        <span>WhatsApp orders</span>
+      </div>
+    </div>
+  </section>
+
   <main id="store-view">
     <div class="category-tabs">
-      <button class="category-btn active" onmouseenter="filterCategory('All')" onclick="filterCategory('All')">All</button>
-      <button class="category-btn" onmouseenter="filterCategory('Phone')" onclick="filterCategory('Phone')">Phones</button>
-      <button class="category-btn" onmouseenter="filterCategory('Smartwatch')" onclick="filterCategory('Smartwatch')">Smartwatch</button>
-      <button class="category-btn" onmouseenter="filterCategory('AirPods')" onclick="filterCategory('AirPods')">AirPods</button>
-      <button class="category-btn" onmouseenter="filterCategory('Sunglasses')" onclick="filterCategory('Sunglasses')">Sunglasses</button>
-      <button class="category-btn" onmouseenter="filterCategory('Computer Accessories')" onclick="filterCategory('Computer Accessories')">Computer Accessories</button>
+      <button class="category-btn active" data-category="All" onmouseenter="filterCategory('All')" onclick="filterCategory('All')">All</button>
+      <button class="category-btn" data-category="Phone" onmouseenter="filterCategory('Phone')" onclick="filterCategory('Phone')">Phones</button>
+      <button class="category-btn" data-category="Smartwatch" onmouseenter="filterCategory('Smartwatch')" onclick="filterCategory('Smartwatch')">Smartwatch</button>
+      <button class="category-btn" data-category="AirPods" onmouseenter="filterCategory('AirPods')" onclick="filterCategory('AirPods')">AirPods</button>
+      <button class="category-btn" data-category="Sunglasses" onmouseenter="filterCategory('Sunglasses')" onclick="filterCategory('Sunglasses')">Sunglasses</button>
+      <button class="category-btn" data-category="Computer Accessories" onmouseenter="filterCategory('Computer Accessories')" onclick="filterCategory('Computer Accessories')">Computer Accessories</button>
+      <button class="category-btn" data-category="Laptops" onmouseenter="filterCategory('Laptops')" onclick="filterCategory('Laptops')">Laptops</button>
+      <button class="category-btn" data-category="Audio" onmouseenter="filterCategory('Audio')" onclick="filterCategory('Audio')">Audio</button>
     </div>
 
     <input type="text" id="search" class="search-bar" placeholder="Search items..." onkeyup="renderProducts()">
@@ -61,8 +91,8 @@
   <footer class="site-footer">
     <div class="footer-container">
       <div class="footer-info">
-        <h3>Our Store</h3>
-        <p>Quality products delivered fast to your doorstep.</p>
+        <h3 class="store-brand-name" data-store-name>Our Store</h3>
+        <p data-store-tagline>Quality products delivered fast to your doorstep.</p>
       </div>
 
       <div class="footer-socials">

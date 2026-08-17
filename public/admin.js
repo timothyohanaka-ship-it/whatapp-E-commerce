@@ -1,6 +1,12 @@
 const ADMIN_USER = "Admin";
 const ADMIN_PASS = "12345";
 
+const defaultStoreSettings = {
+  name: "Store Name",
+  tagline: "Quality products delivered fast to your doorstep.",
+  loginBackgroundImage: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1600&q=80"
+};
+
 const defaultProducts = [
   {
     id: 1,
@@ -10,7 +16,84 @@ const defaultProducts = [
     originalPrice: 71570,
     description: "High precision drawing pad with battery-free stylus.",
     color: "Black",
-    image: "https://via.placeholder.com/300",
+    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 2,
+    name: "iPhone 15 Pro",
+    category: "Phone",
+    price: 980000,
+    originalPrice: 1180000,
+    description: "Premium smartphone with A17 Pro chip and titanium finish.",
+    color: "Natural Titanium",
+    image: "https://images.unsplash.com/photo-1678652878683-1b0cdef9c41d?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 3,
+    name: "Apple Watch Series 9",
+    category: "Smartwatch",
+    price: 560000,
+    originalPrice: 670000,
+    description: "Fitness-ready smartwatch with a bright OLED display.",
+    color: "Silver",
+    image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 4,
+    name: "AirPods Pro 2",
+    category: "AirPods",
+    price: 260000,
+    originalPrice: 320000,
+    description: "Noise-cancelling wireless earbuds with spatial audio.",
+    color: "White",
+    image: "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 5,
+    name: "Aviator Sunglasses",
+    category: "Sunglasses",
+    price: 72000,
+    originalPrice: 98000,
+    description: "Polarized style shades built for comfort and UV protection.",
+    color: "Black",
+    image: "https://images.unsplash.com/photo-1577803947579-9f5d4f69ea1d?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 6,
+    name: "Wireless Mechanical Keyboard",
+    category: "Computer Accessories",
+    price: 180000,
+    originalPrice: 240000,
+    description: "Responsive wireless keyboard with customizable RGB lighting.",
+    color: "Black",
+    image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 7,
+    name: "14-inch UltraBook Pro",
+    category: "Laptops",
+    price: 1450000,
+    originalPrice: 1700000,
+    description: "Lightweight laptop with all-day battery and high performance.",
+    color: "Space Gray",
+    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 8,
+    name: "Studio Wireless Headphones",
+    category: "Audio",
+    price: 310000,
+    originalPrice: 390000,
+    description: "Immersive sound and deep bass for work and travel.",
+    color: "Midnight Blue",
+    image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=900&q=80",
     inStock: true
   }
 ];
@@ -23,7 +106,76 @@ if (!localStorage.getItem('products')) {
 document.addEventListener("DOMContentLoaded", () => {
   checkAuthState();
   loadAdminMarqueeInput();
+  loadStoreSettingsFields();
 });
+
+function applyLoginBackground() {
+  const settings = JSON.parse(localStorage.getItem('storeSettings')) || defaultStoreSettings;
+  const bg = settings.loginBackgroundImage || settings.backgroundImage || defaultStoreSettings.loginBackgroundImage;
+  const pageBody = document.body;
+
+  if (!pageBody) return;
+  pageBody.style.backgroundImage = `linear-gradient(rgba(15, 23, 42, 0.38), rgba(15, 23, 42, 0.38)), url("${bg}")`;
+  pageBody.style.backgroundSize = 'cover';
+  pageBody.style.backgroundPosition = 'center';
+  pageBody.style.backgroundAttachment = 'fixed';
+  pageBody.style.backgroundRepeat = 'no-repeat';
+}
+
+function loadStoreSettingsFields() {
+  const settings = JSON.parse(localStorage.getItem('storeSettings')) || defaultStoreSettings;
+  const nameEl = document.getElementById('store-name-input');
+  const taglineEl = document.getElementById('store-tagline-input');
+  const loginBgUrlEl = document.getElementById('login-bg-url');
+
+  if (nameEl) nameEl.value = settings.name || defaultStoreSettings.name;
+  if (taglineEl) taglineEl.value = settings.tagline || defaultStoreSettings.tagline;
+  if (loginBgUrlEl) loginBgUrlEl.value = settings.loginBackgroundImage || defaultStoreSettings.loginBackgroundImage;
+
+  applyLoginBackground();
+}
+
+function saveStoreSettings() {
+  const nameInput = document.getElementById('store-name-input');
+  const taglineInput = document.getElementById('store-tagline-input');
+  const loginBgUrlInput = document.getElementById('login-bg-url');
+  const loginBgFileInput = document.getElementById('login-bg-file');
+
+  const existingSettings = JSON.parse(localStorage.getItem('storeSettings')) || defaultStoreSettings;
+  let loginBackgroundImage = (loginBgUrlInput && loginBgUrlInput.value.trim()) || existingSettings.loginBackgroundImage || defaultStoreSettings.loginBackgroundImage;
+
+  const handleSave = () => {
+    const updatedSettings = {
+      name: (nameInput && nameInput.value.trim()) || defaultStoreSettings.name,
+      tagline: (taglineInput && taglineInput.value.trim()) || defaultStoreSettings.tagline,
+      loginBackgroundImage
+    };
+
+    localStorage.setItem('storeSettings', JSON.stringify(updatedSettings));
+    alert('Settings saved successfully!');
+
+    const liveStore = document.querySelector('[data-store-name]');
+    const liveTagline = document.querySelector('[data-store-tagline]');
+    if (liveStore) liveStore.textContent = updatedSettings.name;
+    if (liveTagline) liveTagline.textContent = updatedSettings.tagline;
+
+    applyLoginBackground();
+  };
+
+  if (loginBgFileInput && loginBgFileInput.files && loginBgFileInput.files[0]) {
+    const file = loginBgFileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      loginBackgroundImage = reader.result || loginBackgroundImage;
+      handleSave();
+      if (loginBgFileInput) loginBgFileInput.value = '';
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  handleSave();
+}
 
 function checkAuthState() {
   const isLoggedIn = sessionStorage.getItem("isAdminLoggedIn") === "true";

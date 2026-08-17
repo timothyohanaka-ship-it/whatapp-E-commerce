@@ -60,7 +60,105 @@ const defaultProducts = [
     sales: "3.8K+ sold",
     rating: "★ 4.5",
     badge: "Battery-Free Pen",
-    image: "https://via.placeholder.com/300",
+    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 2,
+    name: "iPhone 15 Pro",
+    category: "Phone",
+    price: 980000,
+    originalPrice: 1180000,
+    description: "Premium smartphone with A17 Pro chip and titanium finish.",
+    color: "Natural Titanium",
+    sales: "2.1K+ sold",
+    rating: "★ 4.8",
+    badge: "Best Seller",
+    image: "https://images.unsplash.com/photo-1678652878683-1b0cdef9c41d?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 3,
+    name: "Apple Watch Series 9",
+    category: "Smartwatch",
+    price: 560000,
+    originalPrice: 670000,
+    description: "Fitness-ready smartwatch with customizable watch faces.",
+    color: "Silver",
+    sales: "1.7K+ sold",
+    rating: "★ 4.7",
+    badge: "New Arrival",
+    image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 4,
+    name: "AirPods Pro 2",
+    category: "AirPods",
+    price: 260000,
+    originalPrice: 320000,
+    description: "Noise cancelling wireless earbuds with premium sound.",
+    color: "White",
+    sales: "4.6K+ sold",
+    rating: "★ 4.9",
+    badge: "Top Rated",
+    image: "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 5,
+    name: "Aviator Sunglasses",
+    category: "Sunglasses",
+    price: 72000,
+    originalPrice: 98000,
+    description: "Stylish polarized shades for everyday comfort and UV protection.",
+    color: "Black",
+    sales: "860 sold",
+    rating: "★ 4.5",
+    badge: "UV Protected",
+    image: "https://images.unsplash.com/photo-1577803947579-9f5d4f69ea1d?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 6,
+    name: "Wireless Mechanical Keyboard",
+    category: "Computer Accessories",
+    price: 180000,
+    originalPrice: 240000,
+    description: "Low-latency wireless keyboard for desk setups and gaming.",
+    color: "Black",
+    sales: "1.2K+ sold",
+    rating: "★ 4.6",
+    badge: "RGB Lighting",
+    image: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 7,
+    name: "14-inch UltraBook Pro",
+    category: "Laptops",
+    price: 1450000,
+    originalPrice: 1700000,
+    description: "Portable powerhouse laptop with all-day battery life.",
+    color: "Space Gray",
+    sales: "950 sold",
+    rating: "★ 4.8",
+    badge: "Ultra Thin",
+    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80",
+    inStock: true
+  },
+  {
+    id: 8,
+    name: "Studio Wireless Headphones",
+    category: "Audio",
+    price: 310000,
+    originalPrice: 390000,
+    description: "Immersive sound, deep bass, and long battery life.",
+    color: "Midnight Blue",
+    sales: "1.9K+ sold",
+    rating: "★ 4.7",
+    badge: "Bass Boost",
+    image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=900&q=80",
     inStock: true
   }
 ];
@@ -73,6 +171,50 @@ if (!localStorage.getItem('products')) {
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let selectedCategory = 'All';
 
+function syncProductsFromStorage() {
+  const savedProducts = JSON.parse(localStorage.getItem('products'));
+  if (Array.isArray(savedProducts) && savedProducts.length) {
+    products = savedProducts;
+    renderProducts();
+  }
+}
+
+function syncStoreState() {
+  syncProductsFromStorage();
+  loadStoreSettings();
+  loadMarqueeMessage();
+  updateCartBadge();
+}
+
+const defaultStoreSettings = {
+  name: 'Store Name',
+  tagline: 'Quality products delivered fast to your doorstep.'
+};
+
+function normalizeCategory(value) {
+  return (value || '').toLowerCase().trim();
+}
+
+function loadStoreSettings() {
+  const settings = JSON.parse(localStorage.getItem('storeSettings')) || defaultStoreSettings;
+  const name = settings.name || defaultStoreSettings.name;
+  const tagline = settings.tagline || defaultStoreSettings.tagline;
+
+  document.querySelectorAll('[data-store-name]').forEach(el => {
+    const text = el.dataset.storeNameOverride || name;
+    el.textContent = text;
+  });
+
+  document.querySelectorAll('[data-store-tagline]').forEach(el => {
+    el.textContent = tagline;
+  });
+
+  const pageTitle = document.title;
+  if (pageTitle && pageTitle !== 'WhatsApp Storefront') {
+    document.title = name;
+  }
+}
+
 // Load Marquee Text from LocalStorage
 function loadMarqueeMessage() {
   const savedMessage = localStorage.getItem('marqueeMessage');
@@ -84,11 +226,17 @@ function loadMarqueeMessage() {
 
 function filterCategory(category) {
   selectedCategory = category;
+  const selectedValue = normalizeCategory(category);
+
   document.querySelectorAll('.category-btn').forEach(btn => {
-    const btnText = btn.innerText.trim().toLowerCase();
-    const catText = category.toLowerCase();
-    btn.classList.toggle('active', btnText === catText || (catText === 'all' && btnText === 'all'));
+    const btnValue = normalizeCategory(btn.dataset.category || btn.textContent);
+    const isActive = selectedValue === 'all'
+      ? btnValue === 'all'
+      : btnValue === selectedValue || btnValue.replace(/s$/, '') === selectedValue || btnValue === selectedValue.replace(/s$/, '');
+
+    btn.classList.toggle('active', isActive);
   });
+
   renderProducts();
 }
 
@@ -101,13 +249,15 @@ function renderProducts() {
   list.innerHTML = '';
 
   const filtered = products.filter(p => {
-    const prodCat = (p.category || '').toLowerCase().trim();
-    const selCat = selectedCategory.toLowerCase().trim();
-    
-    const matchesCategory = selCat === 'all' || 
-                            prodCat === selCat || 
-                            prodCat.startsWith(selCat) || 
-                            selCat.startsWith(prodCat);
+    const prodCat = normalizeCategory(p.category);
+    const selCat = normalizeCategory(selectedCategory);
+
+    const matchesCategory = selCat === 'all' ||
+      prodCat === selCat ||
+      prodCat.startsWith(selCat) ||
+      selCat.startsWith(prodCat) ||
+      prodCat.replace(/s$/, '') === selCat ||
+      selCat.replace(/s$/, '') === prodCat;
 
     const matchesSearch = (p.name || '').toLowerCase().includes(search);
     return p.inStock && matchesCategory && matchesSearch;
@@ -256,10 +406,37 @@ function checkoutWhatsApp() {
   message += `*GRAND TOTAL:* ₦${grandTotal.toLocaleString()}`;
   const cleanNumber = PHONE_NUMBER.replace(/[^0-9]/g, '');
 
+  if (!cleanNumber) {
+    alert('WhatsApp number is not configured yet.');
+    return;
+  }
+
   window.location.href = `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encodeURIComponent(message)}`;
 }
 
+window.filterCategory = filterCategory;
+window.renderProducts = renderProducts;
+window.addToCart = addToCart;
+window.updateQty = updateQty;
+window.removeFromCart = removeFromCart;
+window.toggleCartView = toggleCartView;
+window.checkoutWhatsApp = checkoutWhatsApp;
+window.addEventListener('storage', (event) => {
+  if (event.key === 'products' || event.key === 'storeSettings' || event.key === 'marqueeMessage') {
+    syncStoreState();
+  }
+});
+
+setInterval(() => {
+  const savedProducts = JSON.parse(localStorage.getItem('products'));
+  if (Array.isArray(savedProducts) && JSON.stringify(savedProducts) !== JSON.stringify(products)) {
+    products = savedProducts;
+    renderProducts();
+  }
+}, 3000);
+
 // Initialization
+loadStoreSettings();
 loadMarqueeMessage();
 renderProducts();
 updateCartBadge();
