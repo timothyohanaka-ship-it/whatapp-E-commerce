@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       signOut(auth).then(() => {
-        window.location.href = "index.html?login=1";
+        window.location.href = "home.html";
       }).catch((error) => {
         console.error("Signout Error:", error);
       });
