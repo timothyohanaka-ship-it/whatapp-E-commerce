@@ -292,6 +292,12 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    const params = new URLSearchParams(window.location.search);
+    if (!params.get('login')) {
+      window.location.replace('home.html');
+      throw new Error('Redirecting to storefront...');
+    }
+
     // Auth Providers
     const googleProvider = new GoogleAuthProvider();
     const appleProvider = new OAuthProvider('apple.com');

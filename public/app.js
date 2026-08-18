@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       signOut(auth).then(() => {
-        window.location.href = "index.html";
+        window.location.href = "index.html?login=1";
       }).catch((error) => {
         console.error("Signout Error:", error);
       });
@@ -237,7 +237,7 @@ function requireCustomerLoginForCheckout() {
   if (!user) {
     alert('Please log in to complete your order.');
     const returnUrl = encodeURIComponent('home.html');
-    window.location.href = `index.html?next=${returnUrl}`;
+    window.location.href = `index.html?login=1&next=${returnUrl}`;
     return false;
   }
 

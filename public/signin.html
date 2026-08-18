@@ -233,7 +233,7 @@
             <button type="submit" id="submitBtn" class="submit-btn">Sign Up</button>
 
             <div class="login-footer">
-                <span>Already have an account?</span> <a href="index.html">Log In</a>
+                <span>Already have an account?</span> <a href="index.html?login=1">Log In</a>
             </div>
         </form>
     </div>
@@ -293,7 +293,7 @@
                 messageBox.innerText = 'Account created successfully! Redirecting to login...';
 
                 setTimeout(() => {
-                    window.location.href = "index.html";
+                    window.location.href = "index.html?login=1";
                 }, 1500);
 
             } catch (error) {
