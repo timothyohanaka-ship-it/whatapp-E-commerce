@@ -328,17 +328,45 @@
         });
     });
 
+    function formatAuthError(label, error) {
+      const code = error && error.code ? error.code : "unknown";
+      const message = error && error.message ? error.message : "Unknown auth error.";
+      console.error(label + " Error:", { code, message });
+
+      if (code === 'auth/operation-not-allowed') {
+        return "Apple Sign-In is not enabled in Firebase Authentication. Please turn on the Apple provider in Firebase first.";
+      }
+
+      if (code === 'auth/invalid-credential') {
+        return "Apple Sign-In credentials are invalid or the provider is not fully configured. Please check the Firebase Apple provider setup and redirect URL.";
+      }
+
+      if (code === 'auth/network-request-failed') {
+        return "Network error while signing in. Please check your internet connection and try again.";
+      }
+
+      if (location.protocol === 'file:') {
+        return "Apple Sign-In requires a secure website (HTTPS or localhost), not a local file URL. Please run the site over a browser server or deploy it to Firebase Hosting.";
+      }
+
+      return label + " failed: " + message;
+    }
+
     // Apple Login Listener
     const appleBtn = document.getElementById('apple-login-btn');
     appleBtn.addEventListener('click', () => {
+      if (location.protocol === 'file:') {
+        alert("Apple Sign-In requires HTTPS or localhost. A local file URL will not work. Please run the app through a local server or deploy it to a secure domain.");
+        return;
+      }
+
       signInWithPopup(auth, appleProvider)
         .then((result) => {
           console.log("Logged in Apple user:", result.user);
           window.location.href = "home.html";
         })
         .catch((error) => {
-          console.error("Apple Auth Error:", error.message);
-          alert("Apple Sign-In failed: " + error.message);
+          alert(formatAuthError("Apple Sign-In", error));
         });
     });
 

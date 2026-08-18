@@ -231,6 +231,19 @@ function updateCartBadge() {
   if (badge) badge.innerText = totalCount;
 }
 
+function requireCustomerLoginForCheckout() {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert('Please log in to complete your order.');
+    const returnUrl = encodeURIComponent('home.html');
+    window.location.href = `index.html?next=${returnUrl}`;
+    return false;
+  }
+
+  return true;
+}
+
 function toggleCartView() {
   document.getElementById('store-view').classList.toggle('hidden');
   document.getElementById('cart-view').classList.toggle('hidden');
@@ -279,6 +292,10 @@ function renderCart() {
 }
 
 function checkoutWhatsApp() {
+  if (!requireCustomerLoginForCheckout()) {
+    return;
+  }
+
   if (cart.length === 0) {
     alert("Your cart is empty!");
     return;
