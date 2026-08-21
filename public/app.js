@@ -1,7 +1,7 @@
 // Firebase Imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAcB6y16zcRnYUsi3Yg4mVWoVUQSk6EkXM",
@@ -9,12 +9,13 @@ const firebaseConfig = {
   projectId: "e-commance-3d365",
   storageBucket: "e-commance-3d365.firebasestorage.app",
   messagingSenderId: "91723916780",
-  appId: "1:91723916780:web:a5e7079edb49ed84118cc9"
+  appId: "1:91723916780:web:a5e7079edb49ed84118cc9",
+  databaseURL: "https://e-commance-3d365-default-rtdb.firebaseio.com"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getDatabase(app);
 
 // User Authentication Listener
 document.addEventListener("DOMContentLoaded", () => {
@@ -50,51 +51,37 @@ document.addEventListener("DOMContentLoaded", () => {
 // MUST BE IN INTERNATIONAL FORMAT WITHOUT '+' OR DASHES
 const PHONE_NUMBER = "2349099772189";
 
-// ========== FIRESTORE PRODUCTS (SHARED DATABASE) ==========
-let products = []; // Will be populated from Firestore
+// ========== REALTIME DATABASE PRODUCTS (SHARED DATABASE) ==========
+let products = []; // Will be populated from Realtime Database
 let productsUnsubscribe = null; // Store unsubscribe function
 
-// Listen to Firestore products collection in real-time
+// Listen to the shared products path in real-time
 function setupProductsListener() {
-  const productsRef = collection(db, 'products');
+  const productsRef = ref(db, 'products');
   
   // Unsubscribe from previous listener if exists
   if (productsUnsubscribe) productsUnsubscribe();
   
-  productsUnsubscribe = onSnapshot(productsRef, (snapshot) => {
-    products = [];
-    snapshot.forEach((doc) => {
-      products.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
+  productsUnsubscribe = onValue(productsRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    products = Object.entries(data).map(([id, product]) => ({ id, ...product }));
     renderProducts(); // Re-render when products change
   });
 }
 
-// Real-time sync for store settings from Firestore
+// Real-time sync for store settings from Realtime Database
 function setupStoreSettingsListener() {
-  const settingsRef = collection(db, 'storeSettings');
-  onSnapshot(settingsRef, (snapshot) => {
-    if (!snapshot.empty) {
-      const settingsDoc = snapshot.docs[0];
-      const settings = settingsDoc.data();
-      updateStoreDisplay(settings);
-    }
+  onValue(ref(db, 'storeSettings'), (snapshot) => {
+    updateStoreDisplay(snapshot.val() || {});
   });
 }
 
 // Real-time sync for marquee
 function setupMarqueeListener() {
-  const marqueeRef = collection(db, 'marqueeMessage');
-  onSnapshot(marqueeRef, (snapshot) => {
-    if (!snapshot.empty) {
-      const marqueeDoc = snapshot.docs[0];
-      const message = marqueeDoc.data().text || "You are welcome";
-      const marqueeEl = document.getElementById('store-marquee');
-      if (marqueeEl) marqueeEl.innerText = message;
-    }
+  onValue(ref(db, 'marqueeMessage'), (snapshot) => {
+    const message = snapshot.val()?.text || "You are welcome";
+    const marqueeEl = document.getElementById('store-marquee');
+    if (marqueeEl) marqueeEl.innerText = message;
   });
 }
 
@@ -155,7 +142,7 @@ function renderProducts() {
       selCat.replace(/s$/, '') === prodCat;
 
     const matchesSearch = (p.name || '').toLowerCase().includes(search);
-    return matchesCategory && matchesSearch; // Removed inStock check (Firestore only stores published products)
+    return matchesCategory && matchesSearch;
   });
 
   if (filtered.length === 0) {
@@ -333,10 +320,10 @@ window.removeFromCart = removeFromCart;
 window.toggleCartView = toggleCartView;
 window.checkoutWhatsApp = checkoutWhatsApp;
 
-// ========== FIRESTORE INITIALIZATION ==========
+// ========== REALTIME DATABASE INITIALIZATION ==========
 // Set up real-time listeners when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-  setupProductsListener();      // Listen for products from Firestore
+  setupProductsListener();      // Listen for products from Realtime Database
   setupStoreSettingsListener(); // Listen for store settings
   setupMarqueeListener();        // Listen for marquee message
   updateCartBadge();             // Update cart badge

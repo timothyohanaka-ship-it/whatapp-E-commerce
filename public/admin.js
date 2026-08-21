@@ -1,7 +1,7 @@
 // ========== FIREBASE SETUP ==========
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, onSnapshot, deleteDoc, doc, updateDoc, writeBatch, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+import { getDatabase, ref, onValue, push, set, update, remove, get } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAcB6y16zcRnYUsi3Yg4mVWoVUQSk6EkXM",
@@ -9,24 +9,20 @@ const firebaseConfig = {
   projectId: "e-commance-3d365",
   storageBucket: "e-commance-3d365.firebasestorage.app",
   messagingSenderId: "91723916780",
-  appId: "1:91723916780:web:a5e7079edb49ed84118cc9"
+  appId: "1:91723916780:web:a5e7079edb49ed84118cc9",
+  databaseURL: "https://e-commance-3d365-default-rtdb.firebaseio.com"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getDatabase(app);
 
 // ========== ADMIN CREDENTIALS ==========
 // List of admin emails - Add your admin emails here
 const ADMIN_EMAILS = [
-  "admin@example.com",
-  "owner@example.com"
+  "ohanakatimothy6@gmail.com"
   // Add more admin emails as needed
 ];
-
-// For backwards compatibility, also support simple username/password login
-const ADMIN_USER = "Admin";
-const ADMIN_PASS = "12345";
 
 let currentUser = null;
 let isAdminUser = false;
@@ -85,43 +81,33 @@ function handleLogout() {
   });
 }
 
-function handleLogin(event) {
+async function handleLogin(event) {
   event.preventDefault();
-  const user = document.getElementById("username").value.trim();
+  const email = document.getElementById("username").value.trim();
   const pass = document.getElementById("password").value.trim();
 
-  if (user === ADMIN_USER && pass === ADMIN_PASS) {
-    // Simple password auth - show admin dashboard
-    // Note: In production, use Firebase email/password auth instead
-    isAdminUser = true;
-    showAdminDashboard();
-    setupProductsListener();
-    loadStoreSettingsFields();
-    loadAdminMarqueeInput();
-  } else {
-    alert("Invalid username or password!");
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch (error) {
+    console.error("Admin login error:", error);
+    alert("Admin login failed: " + error.message);
   }
 }
 
-// ========== FIRESTORE PRODUCTS MANAGEMENT ==========
+// ========== REALTIME DATABASE PRODUCTS MANAGEMENT ==========
 function setupProductsListener() {
-  const productsRef = collection(db, 'products');
+  const productsRef = ref(db, 'products');
   
   if (productsUnsubscribe) productsUnsubscribe();
   
-  productsUnsubscribe = onSnapshot(productsRef, (snapshot) => {
-    products = [];
-    snapshot.forEach((doc) => {
-      products.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
+  productsUnsubscribe = onValue(productsRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    products = Object.entries(data).map(([id, product]) => ({ id, ...product }));
     renderAdminProducts();
   });
 }
 
-// Add product to Firestore
+// Add product to Realtime Database
 async function handleAddProduct(event) {
   event.preventDefault();
 
@@ -139,8 +125,18 @@ async function handleAddProduct(event) {
     imageSrc = document.getElementById('prod-image-url').value.trim();
   } else {
     const fileInput = document.getElementById('prod-image-file');
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+      alert("Please choose an image file from your computer.");
+      return;
+    }
+
     if (fileInput.files && fileInput.files[0]) {
       const file = fileInput.files[0];
+
+      if (!file.type.startsWith('image/')) {
+        alert("Please choose a valid image file.");
+        return;
+      }
       
       if (file.size > 1500000) {
         alert("File size too large! Please choose an image smaller than 1.5MB.");
@@ -172,9 +168,9 @@ async function handleAddProduct(event) {
   };
 
   try {
-    // Add to Firestore
-    const docRef = await addDoc(collection(db, 'products'), newProduct);
-    console.log("Product added with ID:", docRef.id);
+    const productRef = push(ref(db, 'products'));
+    await set(productRef, newProduct);
+    console.log("Product added with ID:", productRef.key);
     
     document.getElementById('add-product-form').reset();
     handleImageSourceChange('url');
@@ -189,7 +185,7 @@ async function deleteProduct(productId) {
   if (!confirm('Are you sure you want to delete this product?')) return;
   
   try {
-    await deleteDoc(doc(db, 'products', productId));
+    await remove(ref(db, `products/${productId}`));
     alert('Product deleted successfully!');
   } catch (e) {
     console.error("Error deleting product:", e);
@@ -199,7 +195,7 @@ async function deleteProduct(productId) {
 
 async function updateProductQuantity(productId, newQuantity) {
   try {
-    await updateDoc(doc(db, 'products', productId), {
+    await update(ref(db, `products/${productId}`), {
       quantity: newQuantity
     });
   } catch (e) {
@@ -209,7 +205,7 @@ async function updateProductQuantity(productId, newQuantity) {
 
 async function toggleStock(productId, currentStock) {
   try {
-    await updateDoc(doc(db, 'products', productId), {
+    await update(ref(db, `products/${productId}`), {
       inStock: !currentStock
     });
   } catch (e) {
@@ -282,17 +278,7 @@ async function saveStoreSettings() {
   };
 
   try {
-    const settingsRef = collection(db, 'storeSettings');
-    const existingDocs = await getDocs(settingsRef);
-    
-    if (!existingDocs.empty) {
-      // Update existing settings
-      const docId = existingDocs.docs[0].id;
-      await updateDoc(doc(db, 'storeSettings', docId), settingsData);
-    } else {
-      // Create new settings document
-      await setDoc(doc(db, 'storeSettings', 'default'), settingsData);
-    }
+    await set(ref(db, 'storeSettings'), settingsData);
     
     alert('Settings saved successfully!');
   } catch (e) {
@@ -302,18 +288,15 @@ async function saveStoreSettings() {
 }
 
 function loadStoreSettingsFields() {
-  const settingsRef = collection(db, 'storeSettings');
-  onSnapshot(settingsRef, (snapshot) => {
-    if (!snapshot.empty) {
-      const settings = snapshot.docs[0].data();
-      const nameEl = document.getElementById('store-name-input');
-      const taglineEl = document.getElementById('store-tagline-input');
-      const loginBgUrlEl = document.getElementById('login-bg-url');
+  onValue(ref(db, 'storeSettings'), (snapshot) => {
+    const settings = snapshot.val() || {};
+    const nameEl = document.getElementById('store-name-input');
+    const taglineEl = document.getElementById('store-tagline-input');
+    const loginBgUrlEl = document.getElementById('login-bg-url');
 
-      if (nameEl) nameEl.value = settings.name || 'Store Name';
-      if (taglineEl) taglineEl.value = settings.tagline || 'Quality products delivered fast.';
-      if (loginBgUrlEl) loginBgUrlEl.value = settings.loginBackgroundImage || '';
-    }
+    if (nameEl) nameEl.value = settings.name || 'Store Name';
+    if (taglineEl) taglineEl.value = settings.tagline || 'Quality products delivered fast.';
+    if (loginBgUrlEl) loginBgUrlEl.value = settings.loginBackgroundImage || '';
   });
 }
 
@@ -323,17 +306,7 @@ async function saveMarqueeMessage() {
   const message = input ? input.value.trim() : 'You are welcome';
 
   try {
-    const marqueeRef = collection(db, 'marqueeMessage');
-    const existingDocs = await getDocs(marqueeRef);
-    
-    if (!existingDocs.empty) {
-      // Update existing message
-      const docId = existingDocs.docs[0].id;
-      await updateDoc(doc(db, 'marqueeMessage', docId), { text: message });
-    } else {
-      // Create new message document
-      await setDoc(doc(db, 'marqueeMessage', 'default'), { text: message });
-    }
+    await set(ref(db, 'marqueeMessage'), { text: message });
     
     alert('Marquee updated successfully!');
   } catch (e) {
@@ -343,12 +316,10 @@ async function saveMarqueeMessage() {
 }
 
 function loadAdminMarqueeInput() {
-  const marqueeRef = collection(db, 'marqueeMessage');
-  onSnapshot(marqueeRef, (snapshot) => {
+  onValue(ref(db, 'marqueeMessage'), (snapshot) => {
     const input = document.getElementById('marquee-text-input');
-    if (input && !snapshot.empty) {
-      input.value = snapshot.docs[0].data().text || 'You are welcome';
-    }
+    const message = snapshot.val() || {};
+    if (input) input.value = message.text || 'You are welcome';
   });
 }
 
@@ -365,8 +336,8 @@ function readFileAsDataURL(file) {
 function handleImageSourceChange(source) {
   const urlInput = document.getElementById('prod-image-url');
   const fileInput = document.getElementById('prod-image-file');
-  const urlGroup = document.getElementById('url-input-group');
-  const fileGroup = document.getElementById('file-input-group');
+  const urlGroup = document.getElementById('url-input-container');
+  const fileGroup = document.getElementById('file-input-container');
 
   if (source === 'url') {
     if (urlGroup) urlGroup.style.display = 'block';

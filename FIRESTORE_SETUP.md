@@ -1,4 +1,8 @@
-# 🔥 Firestore Setup Guide - Shared Database Implementation
+# Deprecated: Firestore Setup Guide
+
+This project now uses Firebase Realtime Database instead of Firestore. Follow [RTDB_SETUP.md](RTDB_SETUP.md) for the current setup, rules, data paths, and testing instructions.
+
+The older Firestore instructions below are retained only as historical reference.
 
 ## 🎯 What Changed
 

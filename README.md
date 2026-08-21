@@ -2,7 +2,9 @@
 
 A lightweight, fully responsive e-commerce application built for small businesses to sell products via WhatsApp. Customers browse, add to cart, and checkout directly through WhatsApp messages—no external payment processing needed.
 
-**Built with:** HTML5 • CSS3 • Vanilla JavaScript • Firebase Authentication • Browser localStorage
+**Built with:** HTML5 • CSS3 • Vanilla JavaScript • Firebase Authentication • Firebase Realtime Database • Browser localStorage (cart only)
+
+**Database setup:** See [RTDB_SETUP.md](RTDB_SETUP.md) for the Realtime Database URL, rules, data paths, Authentication providers, and local testing steps.
 
 ---
 
@@ -40,6 +42,8 @@ A lightweight, fully responsive e-commerce application built for small businesse
 4. Start customizing!
 
 **Note:** Authentication (Google/Apple) requires a server or Firebase Hosting. File URLs won't work for sign-in.
+
+The storefront reads products, store settings, and marquee messages from Firebase Realtime Database. The cart remains local to each customer's browser.
 
 ### Option 2: Run on Local Server (Recommended)
 ```bash
